@@ -3,7 +3,7 @@ export const API_ORIGIN = "https://api.ai-investment-research.net";
 export const PUBLIC_REPOSITORY = "https://github.com/kaznaritanaka-ctrl/AI-Investment-Public";
 export const API_REPOSITORY = "https://github.com/kaznaritanaka-ctrl/AI-Investment-APIs";
 export const CONTACT_URL = "https://tally.so/r/Xxa7XO";
-export const SCOPE_REVIEW_DATE = "2026-10-04";
+export const SCOPE_REVIEW_DATE = "2026-10-05";
 
 export const datasets = [
   {
@@ -45,10 +45,16 @@ export const datasets = [
 ] as const;
 
 export const endpoints = [
-  { path: "/v1/datasets", title: "公開データの入口", description: ["公開される", "データセットの", "定義と", "利用条件を", "確認します。"] },
-  { path: "/v1/latest", title: "最新の観測", description: ["各系列の", "最新値を", "取得します。", "モデルカタログは", "明示的な", "指定が", "必要です。"] },
-  { path: "/v1/observations", title: "観測の履歴", description: ["期間を", "指定して", "履歴を", "取得します。", "続きは", "cursorで", "辿れます。"] },
-  { path: "/v1/models/coverage", title: "モデルの収録範囲", description: ["対象の", "提供元と", "取得範囲、", "スナップショットを", "確認します。"] },
-  { path: "/v1/fx", title: "参照為替", description: ["原系列と", "計算した", "クロスレート、", "鮮度を", "確認します。"] },
-  { path: "/v1/methodology/licenses", title: "情報源と利用条件", description: ["情報源ごとの", "出典表示や", "再利用条件を", "確認します。"] },
+  { path: "/v1/datasets", title: "Datasets" },
+  { path: "/v1/sources", title: "Sources" },
+  { path: "/v1/latest", title: "Latest" },
+  { path: "/v1/observations", title: "Observations" },
+  { path: "/v1/changes", title: "Changes" },
+  { path: "/v1/fx", title: "FX" },
+  { path: "/v1/models/coverage", title: "Model coverage" },
+  { path: "/v1/models/events", title: "Model events" },
+  { path: "/v1/gpu/catalog", title: "GPU catalog" },
+  { path: "/v1/gpu/coverage", title: "GPU coverage" },
+  { path: "/v1/gpu/metrics", title: "GPU metrics" },
+  { path: "/v1/gpu/comparisons", title: "GPU comparisons" },
 ] as const;
