@@ -4,6 +4,7 @@ import { API_ORIGIN, API_REPOSITORY, PUBLIC_REPOSITORY, SCOPE_REVIEW_DATE } from
 export const metadata: Metadata = {
   title: "API仕様 — AI Investment Research",
   description: "AI Investment Research public API v0.3.0 technical specification.",
+  alternates: { canonical: "/api-guide" },
 };
 
 const routeGroups = [
@@ -97,10 +98,10 @@ export default function ApiGuide() {
           <section id="routes" className="guide-section">
             <span className="section-kicker">02 / ENDPOINTS</span>
             <h2>Routes</h2>
-            {routeGroups.map((group) => <div key={group.name}>
+            {routeGroups.map((group) => <div key={group.name} id={group.name === "Models" ? "models" : undefined}>
               <span className="small-index">{group.name.toUpperCase()}</span>
               <dl className="guide-route-list">
-                {group.routes.map(([path, description]) => <div key={path}>
+                {group.routes.map(([path, description]) => <div key={path} id={path === "/v1/fx" ? "fx" : undefined}>
                   <dt>{path.includes("{id}") ? <code>{path}</code> : <a href={`${API_ORIGIN}${path}`} target="_blank" rel="noreferrer"><code>{path}</code></a>}</dt>
                   <dd>{description}</dd>
                 </div>)}

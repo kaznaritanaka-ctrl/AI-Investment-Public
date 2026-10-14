@@ -35,6 +35,8 @@ npm run build
 
 ## 公開
 
+Cloudflare Workers向けの独立した候補は `pnpm build:cloudflare` で作成します。Sites用ビルドは維持しています。検証・固定成果物・承認後の初回配信とrollbackは [Cloudflare移行手順](docs/cloudflare-migration.md) を参照してください。現段階では本番未適用です。
+
 `.openai/hosting.json`は既存Sitesプロジェクトの識別情報です。Sitesでの確認用公開と、将来の `ai-investment-research.net` への配置は分けて管理します。現在のサイトの閲覧範囲を維持し、独自ドメインやAccessの変更は別途行います。
 
 このリポジトリのコードに対する新しい利用ライセンスは今回設定していません。元データの利用条件はコードと別であり、情報源ごとの出典表示・再配布・商用利用・AI入力条件に従います。既存フォントのOFLとvendorのライセンス表記は同梱しています。
