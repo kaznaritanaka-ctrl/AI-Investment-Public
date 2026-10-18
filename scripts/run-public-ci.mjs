@@ -16,6 +16,7 @@ const steps = [
   ["typecheck", [cli, "run", "typecheck"]],
   ["ci-policy-tests", ["--test", "scripts/test-public-ci.mjs"]],
   ["verification-guards", ["--test", "scripts/test-public-verification.mjs"]],
+  ["body-proxy-guards", ["--test", "scripts/test-public-body-proxy-guards.mjs"]],
   ["toolchain-regressions", ["--test", "scripts/test-public-toolchain.mjs"]],
   ["actual-proxy-regressions", ["--test", "scripts/test-public-proxy.mjs"]],
   ["retained-sites-build", [cli, "run", "build"]],
@@ -23,6 +24,7 @@ const steps = [
   ["public-bundle", [cli, "run", "check:cloudflare"]],
   ["bounded-actions", ["scripts/test-public-actions.mjs"]],
   ["built-http", ["scripts/test-public-built-http.mjs"]],
+  ["body-proxy-regressions", ["--test", "scripts/test-public-body-proxy.mjs"]],
   ["actual-preview", ["scripts/test-public-preview.mjs"]],
   ["public-dry-run", [cli, "run", "dry-run:cloudflare"]],
 ];
