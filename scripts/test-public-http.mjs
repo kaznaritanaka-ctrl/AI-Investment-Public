@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
+
+export async function testPublicHttp(fetchRequest = fetch) {
 
 // Fixed loopback only; this check never calls production or external links.
 const base = "http://127.0.0.1:5174";
 const checks = [];
 async function get(route, expected, options = {}) {
-  const response = await fetch(base + route, { redirect: "manual", signal: AbortSignal.timeout(15000), ...options });
+  const response = await fetchRequest(base + route, { redirect: "manual", signal: AbortSignal.timeout(15000), ...options });
   assert.equal(response.status, expected, route);
   checks.push({ method: options.method ?? "GET", route, status: response.status });
   return response;
@@ -44,3 +47,7 @@ const assets = [...new Set([...home.matchAll(/(?:src|href)="(\/_next\/static\/[^
 assert.ok(assets.length >= 2, "CSS and client script references");
 for (const p of assets) await get(p.replaceAll("&amp;", "&"), 200);
 console.log(JSON.stringify({ result: "PASS", checks }, null, 2));
+return checks;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await testPublicHttp();

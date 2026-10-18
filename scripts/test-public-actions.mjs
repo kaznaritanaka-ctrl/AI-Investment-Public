@@ -50,7 +50,7 @@ console.log(JSON.stringify({ result: "PASS", boundary: "missing Server Actions r
 return checks;
 }
 
-async function testBuiltWorker() {
+export async function withBuiltPublicWorker(test) {
   assert.equal(process.argv.length, 2, "No remote URLs or configuration overrides allowed");
   const configPath = path.resolve("dist/server/wrangler.json");
   const config = JSON.parse(await readFile(configPath, "utf8"));
@@ -93,7 +93,7 @@ async function testBuiltWorker() {
   });
   try {
     await worker.ready;
-    await testPublicActions(async (url, options) => {
+    await test(async (url, options) => {
       // Serialize native Node FormData before crossing the runtime's fetch API.
       const request = new Request(url, options);
       const body = request.body ? Buffer.from(await request.arrayBuffer()) : undefined;
@@ -111,4 +111,4 @@ async function testBuiltWorker() {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await testBuiltWorker();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await withBuiltPublicWorker(testPublicActions);

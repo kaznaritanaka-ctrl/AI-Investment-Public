@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.ci-output/
 
 # next.js
 /.next/

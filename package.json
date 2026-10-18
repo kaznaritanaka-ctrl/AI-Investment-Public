@@ -7,6 +7,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "verify:ci": "node scripts/run-public-ci.mjs",
+    "audit:ci": "node scripts/audit-public-dependencies.mjs",
     "check:cloudflare": "node scripts/verify-public-build.mjs",
     "test:cloudflare:http": "node scripts/test-public-http.mjs",
     "build:cloudflare": "node scripts/run-public.mjs build",

@@ -1,0 +1,107 @@
+{
+  "name": "Public verification only",
+  "on": {
+    "pull_request": {},
+    "push": {
+      "branches": [
+        "main",
+        "codex/**"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "public-ci-${{ github.workflow }}-${{ github.ref }}",
+    "cancel-in-progress": true
+  },
+  "env": {
+    "CLOUDFLARE_CF_FETCH_ENABLED": "false",
+    "CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV": "false",
+    "WRANGLER_SEND_METRICS": "false",
+    "WRANGLER_WRITE_LOGS": "false"
+  },
+  "jobs": {
+    "verify": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 20,
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "with": {
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Pinned Node",
+          "uses": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "name": "Pinned pnpm",
+          "run": "npm install --global pnpm@11.25.0 --ignore-scripts --no-audit --no-fund"
+        },
+        {
+          "name": "Tracked source and history secret checks",
+          "run": "node scripts/check-public-secrets.mjs"
+        },
+        {
+          "name": "Frozen install with existing build policy",
+          "run": "pnpm install --frozen-lockfile"
+        },
+        {
+          "name": "Local Public verification",
+          "run": "pnpm run verify:ci"
+        }
+      ]
+    },
+    "dependency-audit": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 8,
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "with": {
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Pinned Node",
+          "uses": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "name": "Pinned pnpm",
+          "run": "npm install --global pnpm@11.25.0 --ignore-scripts --no-audit --no-fund"
+        },
+        {
+          "name": "Strict audit (known findings remain failures)",
+          "run": "pnpm run audit:ci"
+        },
+        {
+          "name": "Retain raw audit even on failure",
+          "if": "${{ always() }}",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "with": {
+            "name": "public-dependency-audit",
+            "path": ".ci-output/dependency-audit.json",
+            "if-no-files-found": "warn",
+            "retention-days": 7
+          }
+        }
+      ]
+    }
+  }
+}

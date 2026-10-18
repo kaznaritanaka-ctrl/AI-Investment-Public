@@ -1,0 +1,25 @@
+{
+  "schema_version": "public-ci-policy/v1",
+  "format": "Workflow is canonical JSON, a YAML1.2 subset; parsed with built-in JSON to avoid adding a YAML parser dependency",
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "11.25.0"
+  },
+  "actions": {
+    "checkout": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+    "node": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+    "upload": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "audit": "Strict nonzero on any reported vulnerability or acquisition/parse failure; no allowlist, approved exception or silent continue-on-error",
+  "production": "No deploy/upload/version activation, Cloudflare credentials, Sites publication, production HTTP test or manual collection",
+  "github": "Workflow remains local until explicit push approval; publication may start verification CI; merge and repository settings need separate approval",
+  "limitations": [
+    "Local equivalents are not a GitHub-hosted Linux run",
+    "Browser navigation/hydration smoke is a separate manual/CUA gate; HTTP tests do not prove it",
+    "Pattern secret check is defense-in-depth, not proof the complete history is secret-free",
+    "Reachability inventory does not waive any dependency audit result"
+  ]
+}

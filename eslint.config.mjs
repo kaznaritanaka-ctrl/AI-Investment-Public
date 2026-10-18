@@ -11,6 +11,10 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Generated local verification/runtime output, never application source.
+    ".wrangler/**",
+    ".ci-output/**",
+    ".sites-runtime/**",
     "next-env.d.ts",
   ]),
   {
