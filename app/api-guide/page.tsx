@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { HomeDocumentLink } from "@/components/home-document-link";
 import { API_ORIGIN, API_REPOSITORY, PUBLIC_REPOSITORY, SCOPE_REVIEW_DATE } from "@/lib/public-catalog";
 
 export const metadata: Metadata = {
@@ -51,9 +51,9 @@ export default function ApiGuide() {
   return <>
     <a className="skip-link" href="#guide-main">本文へ移動</a>
     <header className="site-header guide-header">
-      <Link className="brand" href="/" aria-label="AI Investment Research トップへ"><span className="brand-symbol" aria-hidden="true"><i /><i /><i /></span><span>AI INVESTMENT<br />RESEARCH</span></Link>
+      <HomeDocumentLink className="brand" aria-label="AI Investment Research トップへ"><span className="brand-symbol" aria-hidden="true"><i /><i /><i /></span><span>AI INVESTMENT<br />RESEARCH</span></HomeDocumentLink>
       <nav aria-label="APIナビゲーション">
-        <Link href="/">Home</Link>
+        <HomeDocumentLink>Home</HomeDocumentLink>
         <a href={`${API_ORIGIN}/openapi.json`} target="_blank" rel="noreferrer">OpenAPI</a>
       </nav>
     </header>
@@ -157,7 +157,7 @@ export default function ApiGuide() {
     </main>
 
     <footer className="site-footer guide-footer">
-      <Link href="/">AI Investment Research</Link>
+      <HomeDocumentLink>AI Investment Research</HomeDocumentLink>
       <div><a href={PUBLIC_REPOSITORY} target="_blank" rel="noreferrer">Public source</a><a href={API_REPOSITORY} target="_blank" rel="noreferrer">API source</a></div>
       <span>© 2026 AI Investment Research</span>
     </footer>
