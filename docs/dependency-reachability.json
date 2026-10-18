@@ -1,0 +1,909 @@
+{
+  "schema_version": "public-dependency-reachability/v1",
+  "reviewed_at": "2026-10-18",
+  "reviewed_revision": "2ed3520eecd6c62b057fd8828ebbf7c29c5913f6",
+  "review_kind": "Static classification only; no exploit or exhaustion tests",
+  "scope": "Public source and pinned toolchain; not API/Admin/Collector",
+  "audit_summary": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 7,
+      "moderate": 19,
+      "high": 28,
+      "critical": 0
+    },
+    "advisory_records": 26,
+    "unique_ghsa": 23,
+    "note": "Saved post-patch audit, not a blanket finding count or a refreshed production scan"
+  },
+  "production_artifact": {
+    "sha256": "89112546246cf060fb9fa3908f35abfb37ed440458d48140b8f167c853dfc94e",
+    "source_maps": 31,
+    "mapped_sources": 333,
+    "advisory_package_source_matches": 0,
+    "limitation": "No source-map matches does not prove native/external/build/dev/CI paths safe"
+  },
+  "policy": "This inventory is NOT an audit allowlist. All records remain needs_review; CI must preserve nonzero audit results. No dependency versions or deployment settings changed.",
+  "surfaces": {
+    "esbuild": {
+      "classification": "development serve API; current project uses build/transform, not esbuild serve",
+      "controlled_input": "Browser/site or HTTP client to an explicitly started esbuild serve endpoint",
+      "sink": "esbuild serve_other.go CORS/servedir handling",
+      "trace": [
+        "package.json db:generate → drizzle-kit → @esbuild-kit/esm-loader → @esbuild-kit/core-utils → esbuild0.18.20",
+        "Vite/Wrangler/tsx → esbuild transform/build0.27.3/0.28.0; no app esbuild serve call found"
+      ],
+      "source_references": [
+        "scripts/run-public.mjs:21",
+        "node_modules/@esbuild-kit/core-utils/dist/index.js"
+      ],
+      "remaining_proof_gaps": [
+        "Verify every esbuild context/serve caller in any supported developer command; no serving instance established",
+        "Windows traversal requires esbuild servedir; Vite dev is a different server, not proof of esbuild serve exposure"
+      ]
+    },
+    "vite": {
+      "classification": "development HTTP middleware, not deployed renderer",
+      "controlled_input": "HTTP query file/path to Windows development server; attacker browser can target loopback for editor case",
+      "sink": "/__open-in-editor launch(file) or static middleware fsDenyGlob",
+      "trace": [
+        "package.json dev:cloudflare → scripts/run-public.mjs21 createServer(host127.0.0.1) → Vite8.0.13",
+        "Vite node.js26331 installs launch-editor middleware;10419–10438 forwards file query to launch/path.resolve",
+        "Vite node.js24121–24143 static-file deny guard; Windows alternate path handling is advisory-specific"
+      ],
+      "source_references": [
+        "scripts/run-public.mjs:21",
+        "vite.config.ts:49",
+        "node_modules/vite/dist/node/chunks/node.js:10419",
+        "node_modules/vite/dist/node/chunks/node.js:26331"
+      ],
+      "remaining_proof_gaps": [
+        "Editor UNC requires Windows/NTLM/SMB reachability; values not collected or tested",
+        "fs.deny advisory requires network exposure and NTFS/8.3 conditions; Public helper bindsloopback, supported Windows exposure not established",
+        "Host allowlist/loopback do not prove all browser-origin attacks impossible"
+      ]
+    },
+    "ws": {
+      "classification": "tooling HMR/inspector/runtime WebSocket",
+      "controlled_input": "WebSocket peer frames; close-reason typed array for disclosure variant",
+      "sink": "ws Receiver fragmented-message buffering or Sender.close",
+      "trace": [
+        "Cloudflare Vite plugin/Wrangler → Miniflare ws8.18.0",
+        "Miniflare index.js58970 creates Node WebSocket;84610 inspector server;88150–88151 runtime/livereload servers",
+        "Miniflare58930 passes e.reason to ws.close;88206/88209 use fixed string reasons"
+      ],
+      "source_references": [
+        "node_modules/miniflare/dist/src/index.js:58930",
+        "node_modules/miniflare/dist/src/index.js:58970",
+        "node_modules/miniflare/dist/src/index.js:84610",
+        "node_modules/ws/lib/websocket.js:294"
+      ],
+      "remaining_proof_gaps": [
+        "Authentication/token and attacker control of supported HMR/inspector peers need complete trace",
+        "No arbitrary typed-array reason call proven; e.reason type propagation needs checking",
+        "Do not equate Node ws with Workers native WebSocket or infer public production DoS"
+      ]
+    },
+    "undici": {
+      "classification": "local runtime transport/HTTP tooling; advisory-specific optional APIs",
+      "controlled_input": "Upstream network/Set-Cookie/WebSocket peer or operator-configured SOCKS5/cache dispatcher",
+      "sink": "ProxyAgent/Socks5ProxyAgent, cookies parser, shared cache interceptor or WebSocket parser",
+      "trace": [
+        "Wrangler/Cloudflare plugin → Miniflare → undici7.24.8",
+        "Miniflare index.js89217/89231 creates Pool to runtimeEntryURL/devRegistry; headers transport at77801/88468",
+        "Wrangler CLI contains proxy libraries, but bundled library definitions alone are not active configured calls"
+      ],
+      "source_references": [
+        "node_modules/miniflare/dist/src/index.js:89217",
+        "node_modules/miniflare/dist/src/index.js:89231",
+        "node_modules/wrangler/wrangler-dist/cli.js"
+      ],
+      "remaining_proof_gaps": [
+        "Project no SOCKS5/cache/cookie-parsing/WebSocket undici configuration found; external supported tool/proxy options not exhaustively traced",
+        "Need exact cookie parse→forward path, shared authorized cache path or hostile outbound WS destination per advisory",
+        "Node built-in fetch is not automatically the pnpm undici package"
+      ]
+    },
+    "js-yaml": {
+      "classification": "lint/config parser",
+      "controlled_input": "YAML config document (potentially from a PR/dependency/config extension)",
+      "sink": "js-yaml mergeMappings/storeMappingPair",
+      "trace": [
+        "eslint → @eslint/eslintrc → js-yaml4.1.1",
+        "@eslint/eslintrc dist/eslintrc.cjs2611/2620 loadYAMLConfigFile → yaml.load(readFile)",
+        "Current repository eslint.config.mjs is flat JS, not YAML; legacy/extended configs and supported alternate inputs require review"
+      ],
+      "source_references": [
+        "eslint.config.mjs:1",
+        "node_modules/@eslint/eslintrc/dist/eslintrc.cjs:2611"
+      ],
+      "remaining_proof_gaps": [
+        "Actual YAML parse invocation for this flat-config command and untrusted document path not established",
+        "Untrusted PR JS can already execute code; risk must be scoped to bounded credential-free runner rather than assumed new prod privilege"
+      ]
+    },
+    "@babel/core": {
+      "classification": "compiler and lint/Next transitive dependency",
+      "controlled_input": "Attacker-supplied sourceMappingURL in source compiled by Babel, with output visible",
+      "sink": "normalize-file.js readFileSync(resolve(dirname(filename),sourceMappingURL))",
+      "trace": [
+        "Next→styled-jsx; eslint-config-next→react-hooks; plugin compiler path → @babel/core7.29.0",
+        "normalize-file.js67 allows inputSourceMap unless false;86 reads external referenced source map",
+        "No Public route compiles submitted source; future CI may process untrusted PR source"
+      ],
+      "source_references": [
+        "node_modules/@babel/core/lib/transformation/normalize-file.js:67",
+        "node_modules/@babel/core/lib/transformation/normalize-file.js:86"
+      ],
+      "remaining_proof_gaps": [
+        "Which build/lint caller invokes Babel compilation and its inputSourceMap options must be traced",
+        "CI secrets-free ephemeral filesystem reduces consequences but does not fix vulnerable package",
+        "Whether generated map output is exported to attacker not established"
+      ]
+    },
+    "brace-expansion": {
+      "classification": "build/lint glob parsing",
+      "controlled_input": "Untrusted pattern string from config/glob inputs or PR-controlled config",
+      "sink": "expand/expand_ and parseCommaParts recursion/rewrite/output allocation",
+      "trace": [
+        "eslint/config-array/minimatch and TypeScript resolver/minimatch → brace-expansion1.1.14 or5.0.6",
+        "1.1.14 index.js38/54 parseCommaParts recursion;103 expand;126 recursive members",
+        "No request-driven glob construction in app/lib/components found"
+      ],
+      "source_references": [
+        "pnpm-lock.yaml",
+        "node_modules/brace-expansion/index.js:38",
+        "node_modules/brace-expansion/index.js:103"
+      ],
+      "remaining_proof_gaps": [
+        "Exact externally supplied pattern reaching each caller/alternate version not fully traced",
+        "Default pattern caps may not defeat advisories; do not execute exhaustion payloads",
+        "Build/CI lower-trust source and timeout limits, not Public request parsing, determine practical impact"
+      ]
+    },
+    "braces": {
+      "classification": "build/lint fast-glob/micromatch",
+      "controlled_input": "Glob pattern from config/PR or tool input",
+      "sink": "recursive AST walkers parse/compile/expand",
+      "trace": [
+        "eslint-plugin-next→fast-glob→micromatch→braces3.0.3",
+        "vinext→vite-plugin-commonjs→vite-plugin-dynamic-import→fast-glob→micromatch→braces3.0.3",
+        "No HTTP/route pattern input in Public app found"
+      ],
+      "source_references": [
+        "pnpm-lock.yaml",
+        "node_modules/braces/index.js"
+      ],
+      "remaining_proof_gaps": [
+        "Trace pattern origin/control into fast-glob for both parent paths",
+        "No upstream patched version currently declared; parent replacement/constraint proposal separate from this local preparation"
+      ]
+    },
+    "source-map-js": {
+      "classification": "PostCSS/build source-map processing",
+      "controlled_input": "CSS sourceMappingURL or explicit prior indexed map controlled by build input",
+      "sink": "IndexedSourceMapConsumer section offset handling",
+      "trace": [
+        "Vite/Next/PostCSS → source-map-js1.2.1",
+        "postcss/lib/previous-map.js24 loadMap;34 new SourceMapConsumer;100 reads map;133 decodes inline annotations",
+        "source-map-js consumer.js14/21 selects IndexedSourceMapConsumer; app has no uploaded source-map route"
+      ],
+      "source_references": [
+        "node_modules/postcss/lib/previous-map.js:24",
+        "node_modules/postcss/lib/previous-map.js:34",
+        "node_modules/source-map-js/lib/source-map-consumer.js:21"
+      ],
+      "remaining_proof_gaps": [
+        "Attacker-controlled CSS/map import and whether indexed map path consumed need per-build trace",
+        "Public artifacts server maps are diagnostic output, not a parser endpoint; do not infer runtime exposure"
+      ]
+    },
+    "sharp": {
+      "classification": "optional local Images binding / Next native image processing",
+      "controlled_input": "SVG bytes passed to sharp under Linux glibc/native conditions",
+      "sink": "librsvg SVG decoder via sharp",
+      "trace": [
+        "Next or Miniflare → sharp0.35.4; workspace explicitly pins Miniflare sharp0.35.4",
+        "Miniflare index.js85186 imagesLocalFetcher;85189 imports sharp;85207 sharp(body.arrayBuffer())",
+        "Public config/verified bundle has ASSETS only, no Images binding; no app sharp calls; local fixed tests omit Images binding"
+      ],
+      "source_references": [
+        "pnpm-workspace.yaml:27",
+        "node_modules/miniflare/dist/src/index.js:85186",
+        "node_modules/miniflare/dist/src/index.js:85207",
+        "wrangler.public.jsonc"
+      ],
+      "remaining_proof_gaps": [
+        "No vulnerable SVG decoder proven active in current Public target; other Sites/build native paths require checking",
+        "Actual Linux CI libvips/librsvg linkage and input provenance must be established before native-image tests",
+        "Fix candidate0.35.5 needs separate dependency-change authorization/compatibility verification"
+      ]
+    }
+  },
+  "records": [
+    {
+      "input_id": "1102341",
+      "ghsa": "GHSA-67mh-4wv8-2f99",
+      "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+      "module": "esbuild",
+      "title": "esbuild enables any website to send any requests to the development server and read the response",
+      "severity_reported": "moderate",
+      "affected_range": "<=0.24.2",
+      "patched_range_reported": ">=0.25.0",
+      "installed": [
+        {
+          "version": "0.18.20",
+          "dev": true,
+          "dependency_path_count": 1,
+          "representative_paths": [
+            ".>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild"
+          ]
+        }
+      ],
+      "surface_ref": "esbuild",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2025-02-10T17:48:08Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1119108",
+      "ghsa": "GHSA-58qx-3vcg-4xpx",
+      "url": "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+      "module": "ws",
+      "title": "ws: Uninitialized memory disclosure",
+      "severity_reported": "moderate",
+      "affected_range": ">=8.0.0 <8.20.1",
+      "patched_range_reported": ">=8.20.1",
+      "installed": [
+        {
+          "version": "8.18.0",
+          "dev": true,
+          "dependency_path_count": 4,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>ws",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>ws"
+          ]
+        }
+      ],
+      "surface_ref": "ws",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-05-18T19:02:42Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1120680",
+      "ghsa": "GHSA-g7r4-m6w7-qqqr",
+      "url": "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+      "module": "esbuild",
+      "title": "esbuild allows arbitrary file read when running the development server on Windows",
+      "severity_reported": "low",
+      "affected_range": ">=0.27.3 <0.28.1",
+      "patched_range_reported": ">=0.28.1",
+      "installed": [
+        {
+          "version": "0.28.0",
+          "dev": true,
+          "dependency_path_count": 23,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>vite>esbuild",
+            ".>@cloudflare/vite-plugin>vite>tsx>esbuild"
+          ]
+        },
+        {
+          "version": "0.27.3",
+          "dev": true,
+          "dependency_path_count": 2,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>wrangler>esbuild",
+            ".>wrangler>esbuild"
+          ]
+        }
+      ],
+      "surface_ref": "esbuild",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-12T20:08:54Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1120786",
+      "ghsa": "GHSA-v6wh-96g9-6wx3",
+      "url": "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+      "module": "vite",
+      "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+      "severity_reported": "moderate",
+      "affected_range": ">=8.0.0 <=8.0.15",
+      "patched_range_reported": ">=8.0.16",
+      "installed": [
+        {
+          "version": "8.0.13",
+          "dev": true,
+          "dependency_path_count": 9,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>vite",
+            ".>@vitejs/plugin-react>vite"
+          ]
+        }
+      ],
+      "surface_ref": "vite",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-15T17:18:32Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121187",
+      "ghsa": "GHSA-vmh5-mc38-953g",
+      "url": "https://github.com/advisories/GHSA-vmh5-mc38-953g",
+      "module": "undici",
+      "title": "undici vulnerable to TLS certificate validation bypass via dropped requestTls in SOCKS5 ProxyAgent",
+      "severity_reported": "high",
+      "affected_range": ">=7.23.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-18T14:28:21Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121241",
+      "ghsa": "GHSA-p88m-4jfj-68fv",
+      "url": "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+      "module": "undici",
+      "title": "undici vulnerable to HTTP header injection via Set-Cookie percent-decoding",
+      "severity_reported": "moderate",
+      "affected_range": ">=7.0.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-19T14:23:30Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121244",
+      "ghsa": "GHSA-vxpw-j846-p89q",
+      "url": "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+      "module": "undici",
+      "title": "undici WebSocket client vulnerable to denial of service via fragment count bypass",
+      "severity_reported": "high",
+      "affected_range": ">=7.0.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-19T14:23:29Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121247",
+      "ghsa": "GHSA-hm92-r4w5-c3mj",
+      "url": "https://github.com/advisories/GHSA-hm92-r4w5-c3mj",
+      "module": "undici",
+      "title": "undici vulnerable to cross-origin request routing via SOCKS5 proxy pool reuse",
+      "severity_reported": "high",
+      "affected_range": ">=7.23.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-19T14:20:20Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121254",
+      "ghsa": "GHSA-g8m3-5g58-fq7m",
+      "url": "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+      "module": "undici",
+      "title": "undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching",
+      "severity_reported": "low",
+      "affected_range": ">=7.0.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-19T14:34:46Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121428",
+      "ghsa": "GHSA-pr7r-676h-xcf6",
+      "url": "https://github.com/advisories/GHSA-pr7r-676h-xcf6",
+      "module": "undici",
+      "title": "undici vulnerable to cross-user information disclosure via shared cache whitespace bypass",
+      "severity_reported": "moderate",
+      "affected_range": ">=7.0.0 <7.28.0",
+      "patched_range_reported": ">=7.28.0",
+      "installed": [
+        {
+          "version": "7.24.8",
+          "dev": true,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>undici",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+          ]
+        }
+      ],
+      "surface_ref": "undici",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-24T14:11:34Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1121860",
+      "ghsa": "GHSA-h67p-54hq-rp68",
+      "url": "https://github.com/advisories/GHSA-h67p-54hq-rp68",
+      "module": "js-yaml",
+      "title": "JS-YAML: Quadratic-complexity DoS in merge key handling via repeated aliases",
+      "severity_reported": "moderate",
+      "affected_range": ">=4.0.0 <=4.1.1",
+      "patched_range_reported": ">=4.2.0",
+      "installed": [
+        {
+          "version": "4.1.1",
+          "dev": true,
+          "dependency_path_count": 27,
+          "representative_paths": [
+            ".>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>@next/eslint-plugin-next>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml"
+          ]
+        }
+      ],
+      "surface_ref": "js-yaml",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-06-29T15:06:00Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123259",
+      "ghsa": "GHSA-96hv-2xvq-fx4p",
+      "url": "https://github.com/advisories/GHSA-96hv-2xvq-fx4p",
+      "module": "ws",
+      "title": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
+      "severity_reported": "high",
+      "affected_range": ">=8.0.0 <8.21.0",
+      "patched_range_reported": ">=8.21.0",
+      "installed": [
+        {
+          "version": "8.18.0",
+          "dev": true,
+          "dependency_path_count": 4,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>miniflare>ws",
+            ".>@cloudflare/vite-plugin>wrangler>miniflare>ws"
+          ]
+        }
+      ],
+      "surface_ref": "ws",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-13T15:31:39Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123527",
+      "ghsa": "GHSA-fx2h-pf6j-xcff",
+      "url": "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+      "module": "vite",
+      "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+      "severity_reported": "high",
+      "affected_range": ">=8.0.0 <=8.0.15",
+      "patched_range_reported": ">=8.0.16",
+      "installed": [
+        {
+          "version": "8.0.13",
+          "dev": true,
+          "dependency_path_count": 9,
+          "representative_paths": [
+            ".>@cloudflare/vite-plugin>vite",
+            ".>@vitejs/plugin-react>vite"
+          ]
+        }
+      ],
+      "surface_ref": "vite",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-15T22:05:54Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123528",
+      "ghsa": "GHSA-4x5r-pxfx-6jf8",
+      "url": "https://github.com/advisories/GHSA-4x5r-pxfx-6jf8",
+      "module": "@babel/core",
+      "title": "@babel/core: Arbitrary File Read via sourceMappingURL Comment",
+      "severity_reported": "low",
+      "affected_range": "<=7.29.0",
+      "patched_range_reported": ">=7.29.6",
+      "installed": [
+        {
+          "version": "7.29.0",
+          "dev": false,
+          "dependency_path_count": 3,
+          "representative_paths": [
+            ".>next>styled-jsx>@babel/core",
+            ".>eslint-config-next>eslint-plugin-react-hooks>@babel/core"
+          ]
+        }
+      ],
+      "surface_ref": "@babel/core",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-15T22:05:27Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123897",
+      "ghsa": "GHSA-3jxr-9vmj-r5cp",
+      "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+      "severity_reported": "high",
+      "affected_range": "<1.1.16",
+      "patched_range_reported": ">=1.1.16",
+      "installed": [
+        {
+          "version": "1.1.14",
+          "dev": true,
+          "dependency_path_count": 85,
+          "representative_paths": [
+            ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+            ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-20T20:51:11Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123898",
+      "ghsa": "GHSA-3jxr-9vmj-r5cp",
+      "url": "https://github.com/advisories/GHSA-3jxr-9vmj-r5cp",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups",
+      "severity_reported": "high",
+      "affected_range": ">=3.0.0 <5.0.7",
+      "patched_range_reported": ">=5.0.7",
+      "installed": [
+        {
+          "version": "5.0.6",
+          "dev": true,
+          "dependency_path_count": 11,
+          "representative_paths": [
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-20T20:51:11Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1123911",
+      "ghsa": "GHSA-52cp-r559-cp3m",
+      "url": "https://github.com/advisories/GHSA-52cp-r559-cp3m",
+      "module": "js-yaml",
+      "title": "js-yaml: YAML merge-key chains can force quadratic CPU consumption",
+      "severity_reported": "high",
+      "affected_range": ">=4.0.0 <4.3.0",
+      "patched_range_reported": ">=4.3.0",
+      "installed": [
+        {
+          "version": "4.1.1",
+          "dev": true,
+          "dependency_path_count": 27,
+          "representative_paths": [
+            ".>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>@next/eslint-plugin-next>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml"
+          ]
+        }
+      ],
+      "surface_ref": "js-yaml",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-20T21:19:10Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1130588",
+      "ghsa": "GHSA-mh99-v99m-4gvg",
+      "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+      "severity_reported": "high",
+      "affected_range": "<1.1.17",
+      "patched_range_reported": ">=1.1.17",
+      "installed": [
+        {
+          "version": "1.1.14",
+          "dev": true,
+          "dependency_path_count": 116,
+          "representative_paths": [
+            ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+            ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-07-31T19:37:57Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240103",
+      "ghsa": "GHSA-q2hr-2g5m-vwhr",
+      "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+      "module": "brace-expansion",
+      "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "severity_reported": "moderate",
+      "affected_range": ">=4.0.0 <5.0.12",
+      "patched_range_reported": ">=5.0.12",
+      "installed": [
+        {
+          "version": "5.0.6",
+          "dev": true,
+          "dependency_path_count": 11,
+          "representative_paths": [
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-09-29T23:45:39Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240104",
+      "ghsa": "GHSA-qhr7-859c-m2p7",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "severity_reported": "high",
+      "affected_range": "<1.1.20",
+      "patched_range_reported": ">=1.1.20",
+      "installed": [
+        {
+          "version": "1.1.14",
+          "dev": true,
+          "dependency_path_count": 85,
+          "representative_paths": [
+            ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+            ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-09-29T23:45:19Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240107",
+      "ghsa": "GHSA-qhr7-859c-m2p7",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "severity_reported": "high",
+      "affected_range": ">=4.0.0 <5.0.11",
+      "patched_range_reported": ">=5.0.11",
+      "installed": [
+        {
+          "version": "5.0.6",
+          "dev": true,
+          "dependency_path_count": 11,
+          "representative_paths": [
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-09-29T23:45:19Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240108",
+      "ghsa": "GHSA-6j4f-fj2g-mc7p",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "severity_reported": "high",
+      "affected_range": "<1.1.19",
+      "patched_range_reported": ">=1.1.19",
+      "installed": [
+        {
+          "version": "1.1.14",
+          "dev": true,
+          "dependency_path_count": 85,
+          "representative_paths": [
+            ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+            ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-09-29T23:44:59Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240111",
+      "ghsa": "GHSA-6j4f-fj2g-mc7p",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p",
+      "module": "brace-expansion",
+      "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "severity_reported": "high",
+      "affected_range": ">=4.0.0 <5.0.10",
+      "patched_range_reported": ">=5.0.10",
+      "installed": [
+        {
+          "version": "5.0.6",
+          "dev": true,
+          "dependency_path_count": 11,
+          "representative_paths": [
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+          ]
+        }
+      ],
+      "surface_ref": "brace-expansion",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-09-29T23:44:59Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1240992",
+      "ghsa": "GHSA-vfj7-8cjw-p6xm",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "module": "braces",
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "severity_reported": "high",
+      "affected_range": "<=3.0.3",
+      "patched_range_reported": null,
+      "installed": [
+        {
+          "version": "3.0.3",
+          "dev": true,
+          "dependency_path_count": 2,
+          "representative_paths": [
+            ".>eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>braces",
+            ".>vinext>vite-plugin-commonjs>vite-plugin-dynamic-import>fast-glob>micromatch>braces"
+          ]
+        }
+      ],
+      "surface_ref": "braces",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-10-02T22:36:34Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1241209",
+      "ghsa": "GHSA-68fv-2mgg-jv7q",
+      "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q",
+      "module": "source-map-js",
+      "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+      "severity_reported": "high",
+      "affected_range": ">=1.0.0 <1.2.2",
+      "patched_range_reported": ">=1.2.2",
+      "installed": [
+        {
+          "version": "1.2.1",
+          "dev": false,
+          "dependency_path_count": 17,
+          "representative_paths": [
+            ".>next>postcss>source-map-js",
+            ".>@cloudflare/vite-plugin>vite>postcss>source-map-js"
+          ]
+        }
+      ],
+      "surface_ref": "source-map-js",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-10-05T23:31:22Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    },
+    {
+      "input_id": "1241331",
+      "ghsa": "GHSA-wq5f-xc86-pv6w",
+      "url": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+      "module": "sharp",
+      "title": "sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+      "severity_reported": "high",
+      "affected_range": "<0.35.5",
+      "patched_range_reported": ">=0.35.5",
+      "installed": [
+        {
+          "version": "0.35.4",
+          "dev": false,
+          "dependency_path_count": 5,
+          "representative_paths": [
+            ".>next>sharp",
+            ".>@cloudflare/vite-plugin>miniflare>sharp"
+          ]
+        }
+      ],
+      "surface_ref": "sharp",
+      "production_status": "No matching package source in fixed Public maps; broader reachability not proven",
+      "verdict": "needs_review",
+      "upstream_updated_at": "2026-10-06T13:43:58Z",
+      "next_step": "Trace remaining source/guard/runtime preconditions before selecting minimal compatible patch; no automatic suppression."
+    }
+  ]
+}
