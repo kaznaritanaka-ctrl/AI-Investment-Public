@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const read = (p) => readFile(path.join(root, p));
@@ -17,7 +18,7 @@ async function files(dir) {
   }
   return result.sort();
 }
-const config = await json("dist/server/wrangler.json");
+export function validatePublicConfig(config) {
 assert.equal(config.name, "ai-investment-public");
 assert.equal(config.main, "index.js");
 assert.equal(config.no_bundle, true);
@@ -29,14 +30,23 @@ assert.equal(config.preview_urls, false);
 assert.deepEqual(config.routes, []);
 assert.deepEqual(config.vars, {});
 assert.deepEqual(config.triggers, {});
+assert.deepEqual(config.observability, { enabled: true, head_sampling_rate: 0.1 });
+assert.equal(config.upload_source_maps, true);
+assert.equal(config.limits, undefined, "Do not introduce CPU or other limits");
+assert.deepEqual(config.exports, {});
 for (const k of ["d1_databases","r2_buckets","services","kv_namespaces","migrations","workflows",
   "send_email","vectorize","hyperdrive","dispatch_namespaces","analytics_engine_datasets",
-  "mtls_certificates","pipelines","secrets_store_secrets","worker_loaders","vpc_services","vpc_networks"]) {
+  "mtls_certificates","pipelines","secrets_store_secrets","worker_loaders","vpc_services","vpc_networks",
+  "connect","agent_memory","ai_search_namespaces","ai_search","artifacts","unsafe_hello_world","flagship"]) {
   assert.equal((config[k] ?? []).length, 0, "Unexpected resource: " + k);
 }
 assert.deepEqual(config.durable_objects?.bindings ?? [], []);
 assert.deepEqual(config.queues, { producers: [], consumers: [] });
-for (const key of ["ai","browser","images","version_metadata","unsafe"]) assert.equal(config[key], undefined);
+for (const key of ["ai","browser","images","version_metadata","unsafe","stream","media"]) assert.equal(config[key], undefined);
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+const config = await json("dist/server/wrangler.json");
+validatePublicConfig(config);
 const publicFiles = await files("public");
 for (const f of publicFiles) {
   assert.equal(hash(await read(f)), hash(await read(f.replace(/^public\//, "dist/client/"))), "Changed asset: " + f);
@@ -60,4 +70,5 @@ for (const f of builtFiles.filter((f) => /\.(js|css)$/.test(f))) {
 }
 console.log(JSON.stringify({ result: "PASS", binding: "ASSETS only", public_assets_unchanged: publicFiles.length,
   audited_source_entries: mappedSources, built_files: builtFiles.length, client_source_maps: 0 }, null, 2));
+}
 

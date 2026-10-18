@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import childProcess from "node:child_process";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
@@ -97,7 +98,7 @@ export async function boundsBufferedChunks(implementation) {
   valid.destroy();
 }
 
-export async function idleResponseAssociation(implementation) {
+export async function idleResponseAssociation(implementation, injectIdle = (socket, bytes) => socket.write(bytes)) {
   const sockets = new Set();
   let connections = 0, current;
   const reply = (body) => "HTTP/1.1 200 OK\r\nContent-Length: " +
@@ -124,11 +125,15 @@ export async function idleResponseAssociation(implementation) {
   const read = async (route) => (await pool.request({ path: "/" + route, method: "GET" })).body.text();
   try {
     assert.equal(await read("first"), "first");
+    // Agent/Pool marks an ordinary completed response idle on the next turn.
+    // Settle only legitimate responses, never the injected idle bytes below.
+    await new Promise((resolve) => setImmediate(resolve));
     assert.equal(await read("second"), "second");
+    await new Promise((resolve) => setImmediate(resolve));
     assert.equal(connections, 1, "Legitimate sequential requests reuse a keep-alive connection");
     // Queue immediately after the idle injection, matching the upstream race
     // boundary; a delay would let the old parser drain it before socket reuse.
-    current.write("HTTP/1.1 200 OK\r\nX-Toolchain-Poison: fixture\r\n" +
+    injectIdle(current, "HTTP/1.1 200 OK\r\nX-Toolchain-Poison: fixture\r\n" +
       "Content-Length: 0\r\nConnection: keep-alive\r\n\r\n");
     const third = await pool.request({ path: "/third", method: "GET" });
     assert.equal(third.headers["x-toolchain-poison"], undefined);
@@ -141,8 +146,10 @@ export async function idleResponseAssociation(implementation) {
 }
 
 async function miniflareTransport() {
-  const { Miniflare } = fromWrangler("miniflare");
-  const worker = new Miniflare({
+  const { Miniflare, convertV4MiniflareOptions } = fromWrangler("miniflare");
+  // Use the same explicit v4-to-v5 adapter as the Cloudflare plugin. It rejects
+  // options that cannot be converted without preserving their behavior.
+  const worker = new Miniflare(convertV4MiniflareOptions({
     modules: true, cf: false, host: "127.0.0.1", port: 0, inspectorPort: 0,
     compatibilityDate: "2026-05-15", compatibilityFlags: ["nodejs_compat"],
     script: `export default {async fetch(request) {
@@ -154,7 +161,7 @@ async function miniflareTransport() {
       const copy=request.clone();
       return new Response((await copy.text())+"|"+(await request.text()));
     }};`
-  });
+  }));
   try {
     await worker.ready;
     const response = await worker.dispatchFetch("http://fixture.test/", { method: "POST", body: "bounded" });
@@ -282,13 +289,29 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   test("toolchain external package resolution and pinned parents", () => {
     assert.equal(require("vite/package.json").version, "8.0.16");
     const pluginPackage = fileURLToPath(new URL("../package.json", import.meta.resolve("@cloudflare/vite-plugin")));
-    assert.equal(JSON.parse(fs.readFileSync(pluginPackage, "utf8")).version, "1.37.1");
-    assert.equal(fromWrangler("wrangler/package.json").version, "4.92.0");
-    assert.equal(fromMiniflare("miniflare/package.json").version, "4.20260515.0");
+    assert.equal(JSON.parse(fs.readFileSync(pluginPackage, "utf8")).version, "1.62.1");
+    assert.equal(fromWrangler("wrangler/package.json").version, "4.143.1");
+    assert.equal(require("@cloudflare/workers-types/package.json").version, "5.20260926.1");
+    assert.equal(fromMiniflare("miniflare/package.json").version, "5.20260926.1-alpha");
+    assert.equal(fromMiniflare("workerd/package.json").version, "1.20260926.1");
     assert.equal(fromMiniflare("ws/package.json").version, "8.21.0");
     assert.equal(fromMiniflare("undici/package.json").version, "7.29.1");
     const plugin = createRequire(pluginPackage);
     assert.equal(plugin("ws/package.json").version, "8.21.0");
+  });
+  test("parent distributions match inspected fixed embedded clients", () => {
+    const parents = [
+      [fromWrangler.resolve("wrangler"), "743124982b7ddb03c6a4ed0f31c4213d765d9a4fc26e0e4f6248d6aa909ea725"],
+      [fileURLToPath(import.meta.resolve("@cloudflare/vite-plugin")), "5e8eeb98c91e1cbb0a8dedfd93ab3fd4abd4a64096765350c3ae54f205347750"],
+    ];
+    for (const [file, expected] of parents) {
+      const bytes = fs.readFileSync(file);
+      assert.equal(createHash("sha256").update(bytes).digest("hex"), expected);
+      const source = bytes.toString();
+      assert.match(source, /\.pnpm\/undici@7\.29\.1\//);
+      assert.match(source, /\.pnpm\/ws@8\.21\.0\//);
+      assert.doesNotMatch(source, /\.pnpm\/(?:undici@7\.24\.8|ws@8\.18\.0)\//);
+    }
   });
   test("ws close rejects non-byte TypedArray and preserves valid reasons", () => rejectsNonByteCloseReasons(ws));
   test("ws receiver bounds tiny fragments and preserves a valid message", { timeout: 5000 }, () => boundsFragments(ws));

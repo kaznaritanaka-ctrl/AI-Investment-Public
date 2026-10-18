@@ -15,12 +15,15 @@ const steps = [
   ["lint", [cli, "run", "lint"]],
   ["typecheck", [cli, "run", "typecheck"]],
   ["ci-policy-tests", ["--test", "scripts/test-public-ci.mjs"]],
+  ["verification-guards", ["--test", "scripts/test-public-verification.mjs"]],
   ["toolchain-regressions", ["--test", "scripts/test-public-toolchain.mjs"]],
+  ["actual-proxy-regressions", ["--test", "scripts/test-public-proxy.mjs"]],
   ["retained-sites-build", [cli, "run", "build"]],
   ["public-build", [cli, "run", "build:cloudflare"]],
   ["public-bundle", [cli, "run", "check:cloudflare"]],
   ["bounded-actions", ["scripts/test-public-actions.mjs"]],
   ["built-http", ["scripts/test-public-built-http.mjs"]],
+  ["actual-preview", ["scripts/test-public-preview.mjs"]],
   ["public-dry-run", [cli, "run", "dry-run:cloudflare"]],
 ];
 for (const [name, args] of steps) {

@@ -69,11 +69,11 @@ export async function withBuiltPublicWorker(test) {
     }
     return result.sort();
   }
-  // Reuse Wrangler's pinned local runtime without its HTTP development proxy.
-  // The proxy in 4.92.0 fails on early POST responses for the baseline too.
+  // Keep the direct-runtime controls as well as the separate actual-Wrangler
+  // preview checks. Convert the existing fixture explicitly for Miniflare v5.
   const require = createRequire(import.meta.url);
-  const { Miniflare } = createRequire(require.resolve("wrangler/package.json"))("miniflare");
-  const worker = new Miniflare({
+  const { Miniflare, convertV4MiniflareOptions } = createRequire(require.resolve("wrangler/package.json"))("miniflare");
+  const worker = new Miniflare(convertV4MiniflareOptions({
     name: config.name,
     modules: [entry, ...(await modulesIn(moduleRoot)).filter((file) => file !== entry)]
       .map((file) => ({ type: "ESModule", path: file })),
@@ -90,7 +90,7 @@ export async function withBuiltPublicWorker(test) {
       routerConfig: { has_user_worker: true },
       assetConfig: { not_found_handling: config.assets.not_found_handling },
     },
-  });
+  }));
   try {
     await worker.ready;
     await test(async (url, options) => {
