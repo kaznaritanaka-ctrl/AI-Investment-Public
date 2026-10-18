@@ -15,6 +15,7 @@ const steps = [
   ["lint", [cli, "run", "lint"]],
   ["typecheck", [cli, "run", "typecheck"]],
   ["ci-policy-tests", ["--test", "scripts/test-public-ci.mjs"]],
+  ["toolchain-regressions", ["--test", "scripts/test-public-toolchain.mjs"]],
   ["retained-sites-build", [cli, "run", "build"]],
   ["public-build", [cli, "run", "build:cloudflare"]],
   ["public-bundle", [cli, "run", "check:cloudflare"]],
