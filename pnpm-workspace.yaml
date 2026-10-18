@@ -22,3 +22,5 @@ overrides:
   # Only the installed Cloudflare parents; do not override every ws consumer.
   '@cloudflare/vite-plugin@1.37.1>ws': 8.21.0
   miniflare@4.20260515.0>ws: 8.21.0
+  # Keep Miniflare/workerd fixed; only its external HTTP client is patched.
+  miniflare@4.20260515.0>undici: 7.29.1
