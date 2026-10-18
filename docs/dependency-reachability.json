@@ -14,7 +14,7 @@
     },
     "advisory_records": 26,
     "unique_ghsa": 23,
-    "note": "Saved post-patch audit, not a blanket finding count or a refreshed production scan"
+    "note": "Selected26-record saved input only, not all current audit records; see dependency-audit-coverage.json"
   },
   "production_artifact": {
     "sha256": "89112546246cf060fb9fa3908f35abfb37ed440458d48140b8f167c853dfc94e",
@@ -24,6 +24,7 @@
     "limitation": "No source-map matches does not prove native/external/build/dev/CI paths safe"
   },
   "policy": "This inventory is NOT an audit allowlist. All records remain needs_review; CI must preserve nonzero audit results. No dependency versions or deployment settings changed.",
+  "latest_audit_coverage": "dependency-audit-coverage.json",
   "surfaces": {
     "esbuild": {
       "classification": "development serve API; current project uses build/transform, not esbuild serve",
@@ -208,7 +209,7 @@
         "Public config/verified bundle has ASSETS only, no Images binding; no app sharp calls; local fixed tests omit Images binding"
       ],
       "source_references": [
-        "pnpm-workspace.yaml:27",
+      "pnpm-workspace.yaml:21",
         "node_modules/miniflare/dist/src/index.js:85186",
         "node_modules/miniflare/dist/src/index.js:85207",
         "wrangler.public.jsonc"

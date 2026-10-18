@@ -1,0 +1,470 @@
+{
+  "schema_version": "public-dependency-audit-coverage/v1",
+  "checked_at": "2026-10-18T05:20:15.7493792Z",
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 7,
+      "moderate": 19,
+      "high": 28,
+      "critical": 0
+    },
+    "dependencies": 205,
+    "devDependencies": 602,
+    "optionalDependencies": 215,
+    "totalDependencies": 842
+  },
+  "current_audit_records": 54,
+  "selected_records_classified": 26,
+  "selected_record_ids": [
+    "1102341",
+    "1119108",
+    "1120680",
+    "1120786",
+    "1121187",
+    "1121241",
+    "1121244",
+    "1121247",
+    "1121254",
+    "1121428",
+    "1121860",
+    "1123259",
+    "1123527",
+    "1123528",
+    "1123897",
+    "1123898",
+    "1123911",
+    "1130588",
+    "1240103",
+    "1240104",
+    "1240107",
+    "1240108",
+    "1240111",
+    "1240992",
+    "1241209",
+    "1241331"
+  ],
+  "selected_records_still_present": true,
+  "additional_unclassified_records": [
+    {
+      "id": 1130591,
+      "ghsa": "GHSA-mh99-v99m-4gvg",
+      "module": "brace-expansion",
+      "severity": "high",
+      "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+      "versions": [
+        "5.0.6"
+      ],
+      "paths": [
+        ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+        ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130715,
+      "ghsa": "GHSA-8xcm-r25x-g524",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to downstream response desynchronization via retry interceptor",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130718,
+      "ghsa": "GHSA-4cwx-7wf7-3272",
+      "module": "undici",
+      "severity": "high",
+      "title": "undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130726,
+      "ghsa": "GHSA-m8rv-5g2x-5cg5",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to CRLF Injection via blob-like body 'type' property",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130729,
+      "ghsa": "GHSA-jr45-8vmc-qm54",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130731,
+      "ghsa": "GHSA-v3r7-h72x-cjcm",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130734,
+      "ghsa": "GHSA-rgw5-rvv9-x895",
+      "module": "brace-expansion",
+      "severity": "high",
+      "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+      "versions": [
+        "5.0.6"
+      ],
+      "paths": [
+        ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion",
+        ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch>brace-expansion"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1130737,
+      "ghsa": "GHSA-rgw5-rvv9-x895",
+      "module": "brace-expansion",
+      "severity": "high",
+      "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
+      "versions": [
+        "1.1.14"
+      ],
+      "paths": [
+        ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+        ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1137242,
+      "ghsa": "GHSA-35p6-xmwp-9g52",
+      "module": "undici",
+      "severity": "low",
+      "title": "undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1138115,
+      "ghsa": "GHSA-5p4m-2wfm-xmqj",
+      "module": "js-yaml",
+      "severity": "high",
+      "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+      "versions": [
+        "4.1.1"
+      ],
+      "paths": [
+        ".>eslint>@eslint/eslintrc>js-yaml",
+        ".>eslint-config-next>@next/eslint-plugin-next>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1153171,
+      "ghsa": "GHSA-c83g-rgw3-j3cx",
+      "module": "browserslist",
+      "severity": "high",
+      "title": "Browserslist: Unbounded memory growth (no cache eviction) via distinct query results, leading to eventual OOM",
+      "versions": [
+        "4.28.2"
+      ],
+      "paths": [
+        ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+        ".>@vitejs/plugin-rsc>react-server-dom-webpack>webpack>browserslist"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1153172,
+      "ghsa": "GHSA-73wf-gq98-2v4g",
+      "module": "browserslist",
+      "severity": "high",
+      "title": "Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats)",
+      "versions": [
+        "4.28.2"
+      ],
+      "paths": [
+        ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist",
+        ".>@vitejs/plugin-rsc>react-server-dom-webpack>webpack>browserslist"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1164783,
+      "ghsa": "GHSA-px8p-9vwx-vf98",
+      "module": "fflate",
+      "severity": "moderate",
+      "title": "fflate unzipSync can enter an infinite loop when parsing malformed ZIP64 archives",
+      "versions": [
+        "0.7.4"
+      ],
+      "paths": [
+        ".>vinext>@vercel/og>satori>@shuding/opentype.js>fflate"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1193686,
+      "ghsa": "GHSA-w5vr-8v7q-w6rv",
+      "module": "baseline-browser-mapping",
+      "severity": "moderate",
+      "title": "baseline-browser-mapping process termination on invalid input causes denial of service",
+      "versions": [
+        "2.10.30"
+      ],
+      "paths": [
+        ".>next>baseline-browser-mapping",
+        ".>next>styled-jsx>@babel/core>@babel/helper-compilation-targets>browserslist>baseline-browser-mapping"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1193727,
+      "ghsa": "GHSA-2883-xcg3-v3hh",
+      "module": "js-yaml",
+      "severity": "high",
+      "title": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+      "versions": [
+        "4.1.1"
+      ],
+      "paths": [
+        ".>eslint>@eslint/eslintrc>js-yaml",
+        ".>eslint-config-next>@next/eslint-plugin-next>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1239765,
+      "ghsa": "GHSA-5p2g-fcmc-qvqq",
+      "module": "image-size",
+      "severity": "high",
+      "title": "image-size: JXL and HEIF parsers allow denial of service through infinite loops",
+      "versions": [
+        "2.0.2"
+      ],
+      "paths": [
+        ".>vinext>image-size"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1239766,
+      "ghsa": "GHSA-w3rx-r6r6-pgpr",
+      "module": "image-size",
+      "severity": "high",
+      "title": "image-size: ICNS parser allows denial of service through an infinite loop",
+      "versions": [
+        "2.0.2"
+      ],
+      "paths": [
+        ".>vinext>image-size"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240036,
+      "ghsa": "GHSA-pmjh-fq2x-6v4x",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to Denial of Service via orphaned RetryHandler response body",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240038,
+      "ghsa": "GHSA-r53p-7pc4-xj5r",
+      "module": "undici",
+      "severity": "low",
+      "title": "undici vulnerable to downstream response splitting via retry interceptor",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240041,
+      "ghsa": "GHSA-rfgv-xxqx-mfg5",
+      "module": "undici",
+      "severity": "high",
+      "title": "undici vulnerable to Denial of Service via unrequested WebSocket subprotocol",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240044,
+      "ghsa": "GHSA-3xpg-4rpp-hhhm",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to Denial of Service via unbounded decompression of compressed responses",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240046,
+      "ghsa": "GHSA-2jfj-6hjv-fm6j",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240048,
+      "ghsa": "GHSA-2gqq-gqf2-x968",
+      "module": "undici",
+      "severity": "low",
+      "title": "undici vulnerable to response truncation via oversized chunked responses in the dump interceptor",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240050,
+      "ghsa": "GHSA-w293-vg96-wgc3",
+      "module": "undici",
+      "severity": "high",
+      "title": "undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240052,
+      "ghsa": "GHSA-8436-99hf-9mmv",
+      "module": "undici",
+      "severity": "low",
+      "title": "undici vulnerable to caching and replay of unsafe HTTP method responses",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240055,
+      "ghsa": "GHSA-rx4f-c7p8-82vq",
+      "module": "undici",
+      "severity": "moderate",
+      "title": "undici vulnerable to Denial of Service via WebSocketStream unclean close",
+      "versions": [
+        "7.24.8"
+      ],
+      "paths": [
+        ".>@cloudflare/vite-plugin>miniflare>undici",
+        ".>@cloudflare/vite-plugin>wrangler>miniflare>undici"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240091,
+      "ghsa": "GHSA-hrr3-gc8f-f4qj",
+      "module": "fast-uri",
+      "severity": "moderate",
+      "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+      "versions": [
+        "3.1.7"
+      ],
+      "paths": [
+        ".>@hookform/resolvers>ajv>fast-uri",
+        ".>@hookform/resolvers>ajv-formats>ajv>fast-uri"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    },
+    {
+      "id": 1240100,
+      "ghsa": "GHSA-q2hr-2g5m-vwhr",
+      "module": "brace-expansion",
+      "severity": "moderate",
+      "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "versions": [
+        "1.1.14"
+      ],
+      "paths": [
+        ".>eslint>@eslint/config-array>minimatch>brace-expansion",
+        ".>eslint>@eslint/eslintrc>minimatch>brace-expansion"
+      ],
+      "status": "unclassified; not dismissed or exempted"
+    }
+  ],
+  "interpretation": "Fresh acquisition returned28 records not present in earlier selected26-record input. Severity totals remain54 (Critical0/High28/Moderate19/Low7); do not call them28 newly introduced vulnerabilities. Classification covers selected26 only, all still needs_review. Full audit remains FAIL; further classification/remediation required.",
+  "no_dependency_upgrade": true,
+  "no_waiver": true
+}
