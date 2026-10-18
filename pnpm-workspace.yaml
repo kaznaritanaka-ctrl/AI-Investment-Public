@@ -19,3 +19,6 @@ verifyDepsBeforeRun: false
 optimisticRepeatInstall: false
 overrides:
   miniflare>sharp: 0.35.4
+  # Only the installed Cloudflare parents; do not override every ws consumer.
+  '@cloudflare/vite-plugin@1.37.1>ws': 8.21.0
+  miniflare@4.20260515.0>ws: 8.21.0
