@@ -7,6 +7,9 @@ settings:
 overrides:
   miniflare>sharp: 0.35.4
 
+patchedDependencies:
+  miniflare@5.20260926.1-alpha: e9b33b19691612ea1d566abd357da97d5dd77f09f82a34b4c84c956d81a04108
+
 importers:
 
   .:
@@ -4944,7 +4947,7 @@ snapshots:
   '@cloudflare/vite-plugin@1.62.1(@types/node@22.19.19)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.1))(wrangler@4.143.1(@cloudflare/workers-types@5.20260926.1)(@types/node@22.19.19))':
     dependencies:
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260926.1)
-      miniflare: 5.20260926.1-alpha(@types/node@22.19.19)
+      miniflare: 5.20260926.1-alpha(patch_hash=e9b33b19691612ea1d566abd357da97d5dd77f09f82a34b4c84c956d81a04108)(@types/node@22.19.19)
       unenv: 2.0.0-rc.24
       vite: 8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.1)
       workerd: 1.20260926.1
@@ -8210,7 +8213,7 @@ snapshots:
 
   mime-db@1.54.0: {}
 
-  miniflare@5.20260926.1-alpha(@types/node@22.19.19):
+  miniflare@5.20260926.1-alpha(patch_hash=e9b33b19691612ea1d566abd357da97d5dd77f09f82a34b4c84c956d81a04108)(@types/node@22.19.19):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.35.4(@types/node@22.19.19)
@@ -9257,7 +9260,7 @@ snapshots:
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260926.1)
       blake3-wasm: 2.1.5
       esbuild: 0.28.1
-      miniflare: 5.20260926.1-alpha(@types/node@22.19.19)
+      miniflare: 5.20260926.1-alpha(patch_hash=e9b33b19691612ea1d566abd357da97d5dd77f09f82a34b4c84c956d81a04108)(@types/node@22.19.19)
       path-to-regexp: 6.3.0
       unenv: 2.0.0-rc.24
       workerd: 1.20260926.1

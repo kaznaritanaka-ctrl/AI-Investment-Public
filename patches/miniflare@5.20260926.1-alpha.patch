@@ -1,0 +1,59 @@
+diff --git a/dist/src/workers/core/entry.worker.js b/dist/src/workers/core/entry.worker.js
+--- a/dist/src/workers/core/entry.worker.js
++++ b/dist/src/workers/core/entry.worker.js
+@@ -5103,4 +5103,43 @@
+   return request.headers.delete(CoreHeaders.PROXY_SHARED_SECRET), request.headers.delete(CoreHeaders.ORIGINAL_URL), env[CoreBindings.STRIP_DISABLE_PRETTY_ERROR] && request.headers.delete(CoreHeaders.DISABLE_PRETTY_ERROR), request;
+ }
++// UNAPPLIED CANDIDATE. Local Miniflare entry only; never an app entrypoint.
++// Prototype policy for the observed small, known-length Public POST. Missing,
++// malformed and >16KiB Content-Length retain the existing streaming path.
++async function preparePublicPreviewBody(request, routeTarget) {
++  const url = new URL(request.url);
++  if (routeTarget !== "ai-investment-public" || request.method !== "POST" ||
++      !["/", "/api-guide"].includes(url.pathname) || !request.body ||
++      request.bodyUsed || request.body.locked) return { request };
++  const raw = request.headers.get("content-length");
++  if (!raw || !/^[1-9]\d{0,4}$/.test(raw)) return { request };
++  const length = Number(raw);
++  if (length > 16384) return { request };
++  const buffer = new Uint8Array(length), reader = request.body.getReader();
++  const timeout = new Error("Local preview body deadline");
++  let timer, offset = 0;
++  const deadline = new Promise((_, reject) => {
++    timer = setTimeout(() => reject(timeout), 1000);
++  });
++  try {
++    while (true) {
++      const { value, done } = await Promise.race([reader.read(), deadline]);
++      if (done) break;
++      if (offset + value.byteLength > length) throw new Error("Local preview body length mismatch");
++      buffer.set(value, offset);
++      offset += value.byteLength;
++    }
++    if (offset !== length) throw new Error("Local preview body length mismatch");
++  } catch (error) {
++    // Cancellation must not make a stalled reader hold the request indefinitely.
++    void reader.cancel().catch(() => {});
++    return { response: new Response(error === timeout ? "Local preview request body timeout" :
++      "Local preview request body invalid", { status: error === timeout ? 408 : 400 }) };
++  } finally {
++    clearTimeout(timer);
++    reader.releaseLock();
++  }
++  return { request: new Request(request, { body: buffer }) };
++}
++
+ function getTargetService(request, url, env) {
+   let override = request.headers.get(CoreHeaders.ROUTE_OVERRIDE);
+@@ -5328,4 +5367,7 @@
+         headers.set(CoreHeaders.ACCESS_BLOB, JSON.stringify(accessBlob)), request = new Request(request, { headers });
+       }
++      const prepared = await preparePublicPreviewBody(request, routeTarget);
++      if (prepared.response) return prepared.response;
++      request = prepared.request;
+       let response = await service.fetch(request);
+       return disablePrettyErrorPage || (response = await maybePrettifyError(request, response, env)), response = ensureAcceptableEncoding(clientAcceptEncoding, response), env[CoreBindings.LOG_REQUESTS] && (response = maybeLogRequest(request, response, env, ctx, startTime)), response;
+@@ -5339,3 +5381,2 @@
+   entry_worker_default as default
+ };
+-//# sourceMappingURL=entry.worker.js.map
