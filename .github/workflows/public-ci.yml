@@ -5,7 +5,8 @@
     "push": {
       "branches": [
         "main",
-        "codex/**"
+        "codex/**",
+        "!codex/linux-fixed-verification-20261020"
       ]
     },
     "workflow_dispatch": {}

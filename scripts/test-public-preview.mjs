@@ -61,12 +61,17 @@ for (let cycle = 0; cycle < 3; cycle++) {
       stopRequested = true;
       if (process.platform === "win32") {
         const result = spawnSync("taskkill", ["/PID", String(child.pid), "/T", "/F"],
-          { windowsHide: true, stdio: "ignore" });
+          { windowsHide: true, stdio: "ignore", timeout: 5000 });
         assert.equal(result.status, 0, "Could not stop only the owned preview tree");
       } else process.kill(-child.pid, "SIGTERM");
     }
     } catch (error) { cleanupError = error; }
-    termination = await closed; // Includes output delivered during shutdown.
+    let closeTimer;
+    try {
+      termination = await Promise.race([closed, new Promise((_, reject) => {
+        closeTimer = setTimeout(() => reject(new Error("Owned preview close exceeded 8 seconds")), 8000);
+      })]); // Includes output delivered during shutdown; never wait indefinitely.
+    } finally { clearTimeout(closeTimer); }
   }
   if (executionError || cleanupError) throw new AggregateError(
     [executionError, cleanupError].filter(Boolean), "Owned preview verification failed; preserve request and cleanup errors");

@@ -1,0 +1,165 @@
+{
+  "name": "Fixed Linux candidate verification",
+  "on": {
+    "push": {
+      "branches": [
+        "codex/linux-fixed-verification-20261020"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "air-fixed-${{ github.ref }}",
+    "cancel-in-progress": false
+  },
+  "jobs": {
+    "verify": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 20,
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "with": {
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Pinned host Node",
+          "uses": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "name": "Prepare pinned inputs",
+          "run": "bash ci/run-linux-fixed.sh prepare"
+        },
+        {
+          "name": "Prefetch without lifecycle scripts",
+          "run": "bash ci/run-linux-fixed.sh fetch"
+        },
+        {
+          "name": "Offline frozen install",
+          "run": "bash ci/run-linux-fixed.sh install"
+        },
+        {
+          "name": "Required tools and patch",
+          "run": "bash ci/run-linux-fixed.sh health"
+        },
+        {
+          "name": "Lint",
+          "run": "bash ci/run-linux-fixed.sh lint"
+        },
+        {
+          "name": "Typecheck",
+          "run": "bash ci/run-linux-fixed.sh typecheck"
+        },
+        {
+          "name": "CI policy tests",
+          "run": "bash ci/run-linux-fixed.sh ci-policy"
+        },
+        {
+          "name": "Verification guards",
+          "run": "bash ci/run-linux-fixed.sh verification-guards"
+        },
+        {
+          "name": "Body proxy static guards",
+          "run": "bash ci/run-linux-fixed.sh body-proxy-guards"
+        },
+        {
+          "name": "Sites build",
+          "run": "bash ci/run-linux-fixed.sh sites-build"
+        },
+        {
+          "name": "Public build",
+          "run": "bash ci/run-linux-fixed.sh public-build"
+        },
+        {
+          "name": "Public bundle",
+          "run": "bash ci/run-linux-fixed.sh public-bundle"
+        },
+        {
+          "name": "Toolchain regressions",
+          "run": "bash ci/run-linux-fixed.sh toolchain"
+        },
+        {
+          "name": "Proxy regressions",
+          "run": "bash ci/run-linux-fixed.sh proxy"
+        },
+        {
+          "name": "Actions controls",
+          "run": "bash ci/run-linux-fixed.sh built-actions"
+        },
+        {
+          "name": "HTTP controls",
+          "run": "bash ci/run-linux-fixed.sh built-http"
+        },
+        {
+          "name": "Body proxy regressions",
+          "run": "bash ci/run-linux-fixed.sh body-proxy"
+        },
+        {
+          "name": "Actual preview 3 cycles",
+          "run": "bash ci/run-linux-fixed.sh preview"
+        },
+        {
+          "name": "Retain bounded evidence",
+          "if": "${{ always() }}",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "with": {
+            "name": "fixed-linux-verify",
+            "path": "${{ runner.temp }}/air-fixed-${{ github.run_id }}-${{ github.run_attempt }}/out",
+            "if-no-files-found": "error",
+            "retention-days": 7
+          }
+        }
+      ]
+    },
+    "dependency-audit": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "steps": [
+        {
+          "name": "Checkout",
+          "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "with": {
+            "fetch-depth": 0,
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Pinned host Node",
+          "uses": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "name": "Prepare same pinned inputs",
+          "run": "bash ci/run-linux-fixed.sh prepare"
+        },
+        {
+          "name": "Strict current audit",
+          "run": "bash ci/run-linux-fixed.sh audit"
+        },
+        {
+          "name": "Retain bounded evidence",
+          "if": "${{ always() }}",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "with": {
+            "name": "fixed-linux-audit",
+            "path": "${{ runner.temp }}/air-fixed-${{ github.run_id }}-${{ github.run_attempt }}/out",
+            "if-no-files-found": "error",
+            "retention-days": 7
+          }
+        }
+      ]
+    }
+  }
+}

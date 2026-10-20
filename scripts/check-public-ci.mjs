@@ -6,7 +6,7 @@ export function validateWorkflow(w, policy) {
   assert.deepEqual(Object.keys(w.on).sort(), ["pull_request", "push", "workflow_dispatch"]);
   assert.deepEqual(w.permissions, { contents: "read" });
   assert.deepEqual(Object.keys(w.jobs).sort(), ["dependency-audit", "verify"]);
-  assert.deepEqual(w.on.push.branches, ["main", "codex/**"]);
+  assert.deepEqual(w.on.push.branches, ["main", "codex/**", "!codex/linux-fixed-verification-20261020"]);
   assert.equal(w.env.CLOUDFLARE_CF_FETCH_ENABLED, "false");
   assert.equal(w.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV, "false");
   assert.equal(w.env.WRANGLER_SEND_METRICS, "false");
